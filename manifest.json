@@ -1,1 +1,8 @@
-{"data":[{"action":"insertscript","selector":"","page filter":"","all":"https://learningmanagerstage4.github.io/kamal/xss.js"}]}
+{
+  "data": [{
+    "action": "insertscript",
+    "selector": "",
+    "page filter": "",
+    "all": "https://learningmanagerstage4.github.io/kamal/xss.js"
+  }]
+}
